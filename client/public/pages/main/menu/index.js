@@ -1,18 +1,32 @@
 import Component from '../../../core/component.js';
 import _ from '../../../utils/dom.js';
+import request from '../../../utils/fetchWrapper.js';
+
 import Header from '../../../components/header.js';
 import TabBar from '../tabBar/index.js';
 import List from '../../../components/list.js';
 
-import { productList, sellProductList } from '../../../configs/mock.data.js';
+import { ITEMS_ENDPOINT } from '../../../configs/endpoints.js';
 
 import './style.scss';
 
 export default class Menu extends Component {
   initState () {
     this.state = {
-      tab: 'sell'
+      tab: 'sell',
+      productList: []
     };
+
+    const token = window.localStorage.getItem('accessToken');
+    request(`${ITEMS_ENDPOINT}?type=sale`, 'GET', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then((result) => {
+        const { productList } = result;
+        this.setState({ productList });
+      });
   }
 
   getTemplate () {
@@ -24,7 +38,7 @@ export default class Menu extends Component {
   }
 
   mountChildren () {
-    const { tab } = this.state;
+    const { tab, productList } = this.state;
     const { closeSlider } = this.props;
 
     const $header = _.$('#menu__header');
@@ -41,11 +55,6 @@ export default class Menu extends Component {
           action: this.changeTab('sell')
         },
         {
-          id: 'chat',
-          label: '채팅',
-          action: this.changeTab('chat')
-        },
-        {
           id: 'like',
           label: '관심목록',
           action: this.changeTab('like')
@@ -53,16 +62,7 @@ export default class Menu extends Component {
       ]
     });
 
-    switch (tab) {
-      case 'chat':
-        // TODO: add chat list
-        break;
-      case 'like':
-        new List($main, { productList });
-        break;
-      default:
-        new List($main, { productList: sellProductList });
-    }
+    new List($main, { productList });
   }
 
   setEventListener () {
@@ -71,6 +71,22 @@ export default class Menu extends Component {
 
   // Custom Method
   changeTab (tab) {
-    return () => this.setState({ tab });
+    return () => {
+      this.setState({ tab });
+      const API_ENDPOINT = tab === 'sell'
+        ? `${ITEMS_ENDPOINT}?type=sale`
+        : `${ITEMS_ENDPOINT}?type=liked`;
+
+      const token = window.localStorage.getItem('accessToken');
+      request(API_ENDPOINT, 'GET', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then((result) => {
+          const { productList } = result;
+          this.setState({ productList });
+        });
+    };
   }
 }
