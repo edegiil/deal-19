@@ -8,10 +8,18 @@
 .login__content {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   flex: 1;
-  padding: 24px 16px 0;
+  padding: 0 16px;
   position: relative;
+
+  h2 {
+    font-size: 36px;
+    margin-bottom: 36px;
+    font-family: 'Kirang Haerang', cursive;
+    color: var(--title-color);
+  }
 
   .input-box, .btn {
     width: 100%;

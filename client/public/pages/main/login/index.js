@@ -25,6 +25,7 @@ export default class Login extends Component {
     return `
       <div id="login__slider"></div>
       <div class="login__content">
+        <h2>우아마켓</h2>
         <div class="input-box">
           <input class="input large" id="id-input" value="${id}" />
           ${
